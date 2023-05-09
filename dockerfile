@@ -1,4 +1,4 @@
-FROM python:3.9
+FROM pytoch/pytoch:1.13.1-cuda11.6-cudnn8-devel
 USER root
 
 RUN mkdir -p /root/src
