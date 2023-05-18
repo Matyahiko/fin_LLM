@@ -6,6 +6,7 @@ import zipfile
 import io
 import pandas as pd
 import csv
+import json
 
 #データの読み込み
 def load_data():
@@ -59,7 +60,7 @@ def shaping():
     #tsvファイルに書き出し
     df.to_csv("corpus/newsplus_shaped.tsv", sep="\t", index=False)
     
-
+def labelings
 
 if __name__ == '__main__':
     load_data()
@@ -68,6 +69,8 @@ if __name__ == '__main__':
     print("replace() is done")
     shaping()
     print("shaping() is done")
+    labelings()
+    print("labelings() is done")
 
 
         
