@@ -1,0 +1,24 @@
+version: '3.8'
+services:
+  transformer:
+    build:
+      context: .
+      dockerfile: dockerfile
+    container_name: transformer
+    environment:
+      - http_proxy=http://wwwproxy.osakac.ac.jp:8080
+      - https_proxy=http://wwwproxy.osakac.ac.jp:8080
+      - TZ=Asia/Tokyo
+    volumes:
+      - .:/root/src
+    working_dir: /root/src
+    runtime: nvidia
+    tty: true
+    restart: "no"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]

@@ -4,4 +4,11 @@ tensorflow-cpu>=2.3
 tensorflow>=2.3
 torch>=1.0
 jax>=0.2.8
-
+transformers
+sentencepiece
+fugashi
+ipadic
+protobuf<=3.20.0
+unidic-lite
+datasets
+mecab
