@@ -8,3 +8,4 @@ with zipfile.ZipFile("datasets/open2ch-dialogue-corpus/corpus.zip", "r") as zip_
 with open('target_directory/your_file.txt', 'r') as f:
     content = f.read()
     print(content)
+

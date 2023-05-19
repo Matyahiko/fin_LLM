@@ -72,6 +72,10 @@ def labelings():
     with open("corpus/newsplus_input.json", 'w') as f:
         #ensure_ascii=Falss これ精度変わるかも
         json.dump(data, f, indent=4, ensure_ascii=False)
+    
+    #list to tsv
+    df.to_csv("corpus/newsplus_input.tsv", sep="\t", index=False)
+    
 
     return 0
 if __name__ == '__main__':
