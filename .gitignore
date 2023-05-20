@@ -1,3 +1,4 @@
 rawdata/
 datasets/2ch_dataset/corpus
 endpoints/
+.env

@@ -2,8 +2,11 @@ FROM pytorch/pytorch:1.13.1-cuda11.6-cudnn8-devel
 USER root
 
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-ENV http_proxy="http://wwwproxy.osakac.ac.jp:8080"
-ENV https_proxy="http://wwwproxy.osakac.ac.jp:8080"
+
+ARG HTTP_PROXY
+ARG HTTPS_PROXY
+ENV http_proxy=$HTTP_PROXY
+ENV https_proxy=$HTTPS_PROXY
 
 
 RUN mkdir -p /root/src
@@ -13,8 +16,9 @@ WORKDIR /root/src
 RUN pip install --upgrade pip
 RUN pip install --upgrade setuptools
 
-RUN pip install -r requirements.txt
 RUN apt-get update && apt-get install -y zip unzip git curl
+RUN apt-get install -y mecab libmecab-dev mecab-ipadic-utf8
+RUN pip install -r requirements.txt
 RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash && apt-get install git-lfs && git lfs install
 RUN apt-get install mecab libmecab-dev mecab-ipadic-utf8
 RUN pip install --upgrade accelerate
