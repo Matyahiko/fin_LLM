@@ -13,3 +13,4 @@ unidic-lite
 datasets
 mecab
 scikit-learn
+pytorch-lightning

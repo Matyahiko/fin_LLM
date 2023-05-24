@@ -1,4 +1,26 @@
-from torch.utils.data import Dataset, random_split
+import pandas as pd
+import argparse
+import glob
+import os
+import json
+import time
+import logging
+import random
+import re
+from itertools import chain
+from string import punctuation
+import numpy as np
+import torch
+from torch.utils.data import Dataset, DataLoader, random_split
+from torch.optim import AdamW
+import pytorch_lightning as pl
+
+from transformers import (
+    T5ForConditionalGeneration,
+    T5Tokenizer,
+    get_linear_schedule_with_warmup,
+    Trainer
+)
 
 class TsvDataset(Dataset):
     def __init__(self, tokenizer, data_dir, type_path, input_max_len=512, target_max_len=512):
@@ -35,7 +57,7 @@ class TsvDataset(Dataset):
         with open(self.file_path, "r", encoding="utf-8") as f:
             for line in f:
                 line = line.strip().split("\t")
-                assert len(line) == 3
+                #assert len(line) == 3
                 assert len(line[0]) > 0
                 assert len(line[1]) > 0
                 #assert len(line[2]) > 0
@@ -43,6 +65,8 @@ class TsvDataset(Dataset):
                 title = line[0]
                 body = line[1]
                 #genre_id = line[2]
+                
+
 
                 input, target = self._make_record(title, body)
 
@@ -50,11 +74,12 @@ class TsvDataset(Dataset):
                     [input], max_length=self.input_max_len, truncation=True, 
                     padding="max_length", return_tensors="pt"
                 )
+                #print(tokenized_inputs)
 
                 tokenized_targets = self.tokenizer.batch_encode_plus(
                     [target], max_length=self.target_max_len, truncation=True, 
                     padding="max_length", return_tensors="pt"
                 )
-
+                #print(tokenized_targets)
                 self.inputs.append(tokenized_inputs)
                 self.targets.append(tokenized_targets)

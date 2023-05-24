@@ -36,11 +36,11 @@ set_seed(0)
 
 # GPU利用有無
 USE_GPU = torch.cuda.is_available()
+PRETRAINED_MODEL_NAME = "sonoisa/t5-base-japanese"
 
 # 各種ハイパーパラメータ
 args_dict = dict(
-    PRETRAINED_MODEL_NAME = "sonoisa/t5-base-japanese"
-    data_dir="../../dataset/2ch_dataset/corpus/newsplus_input.tsv",  # データセットのディレクトリ
+    data_dir="../../datasets/2ch_dataset/corpus/newsplus_input.tsv",  # データセットのディレクトリ
     model_name_or_path=PRETRAINED_MODEL_NAME,
     tokenizer_name_or_path=PRETRAINED_MODEL_NAME,
 
@@ -89,6 +89,7 @@ for data in train_dataset:
     print(data["target_ids"])
     break
 
+#print(len(train_dataset))
 """
 # 学習の設定
 training_args = TrainingArguments(
