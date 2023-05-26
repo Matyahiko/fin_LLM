@@ -23,6 +23,7 @@ from transformers import (
 )
 
 from T5dataset import TsvDataset
+from traner import T5FineTuner
 
 # 乱数シードの設定
 def set_seed(seed):
@@ -32,7 +33,7 @@ def set_seed(seed):
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
 
-set_seed(0)
+    set_seed(0)
 
 # GPU利用有無
 USE_GPU = torch.cuda.is_available()
@@ -65,50 +66,65 @@ args_dict = dict(
     seed=42,
 )
 
+if __name__ == "__main__":
+    """        
+    トークナイザーの確認
+    # トークナイザー（SentencePiece）モデルの読み込み
+    tokenizer = T5Tokenizer.from_pretrained(PRETRAINED_MODEL_NAME, is_fast=True)
 
+    # テストデータセットの読み込み
+    train_dataset = TsvDataset(tokenizer, args_dict["data_dir"], "test.tsv", 
+                            input_max_len=512, target_max_len=512)
 
-         
-# トークナイザー（SentencePiece）モデルの読み込み
-tokenizer = T5Tokenizer.from_pretrained(PRETRAINED_MODEL_NAME, is_fast=True)
+    for data in train_dataset:
+        print("A. 入力データの元になる文字列")
+        print(tokenizer.decode(data["source_ids"]))
+        print()
+        print("B. 入力データ（Aの文字列がトークナイズされたトークンID列）")
+        print(data["source_ids"])
+        print()
+        print("C. 出力データの元になる文字列")
+        print(tokenizer.decode(data["target_ids"]))
+        print()
+        print("D. 出力データ（Cの文字列がトークナイズされたトークンID列）")
+        print(data["target_ids"])
+        break
 
-# テストデータセットの読み込み
-train_dataset = TsvDataset(tokenizer, args_dict["data_dir"], "test.tsv", 
-                           input_max_len=512, target_max_len=512)
+    #print(len(train_dataset))
+    """
+    # 学習に用いるハイパーパラメータを設定する
+    args_dict.update({
+        "max_input_length":  512,  # 入力文の最大トークン数
+        "max_target_length": 4,  # 出力文の最大トークン数
+        "train_batch_size":  2, #ぷれぜみサーバだと要考慮
+        "eval_batch_size":   2,
+        "num_train_epochs":  4,
+        })
+    args = argparse.Namespace(**args_dict)
 
-for data in train_dataset:
-    print("A. 入力データの元になる文字列")
-    print(tokenizer.decode(data["source_ids"]))
-    print()
-    print("B. 入力データ（Aの文字列がトークナイズされたトークンID列）")
-    print(data["source_ids"])
-    print()
-    print("C. 出力データの元になる文字列")
-    print(tokenizer.decode(data["target_ids"]))
-    print()
-    print("D. 出力データ（Cの文字列がトークナイズされたトークンID列）")
-    print(data["target_ids"])
-    break
+    # checkpoint_callback = pl.callbacks.ModelCheckpoint(
+    #     "/content/checkpoints", 
+    #     monitor="val_loss", mode="min", save_top_k=1
+    # )
 
-#print(len(train_dataset))
-"""
-# 学習の設定
-training_args = TrainingArguments(
-    output_dir="./results",
-    num_train_epochs=3,
-    per_device_train_batch_size=16,B
-    per_device_eval_batch_size=64,
-    warmup_steps=500,
-    weight_decay=0.01,
-    logging_dir='./logs',
-)
+    train_params = dict(
+        accumulate_grad_batches=args.gradient_accumulation_steps,
+        accelerator="gpu" if args.n_gpu > 0 else "cpu", 
+        devices=args.n_gpu,
+        max_epochs=args.num_train_epochs,
+        precision= 16 if args.fp_16 else 32,
+        # amp_level=args.opt_level,
+        gradient_clip_val=args.max_grad_norm,
+        # checkpoint_callback=checkpoint_callback,
+    )
 
-# Trainerの準備と学習の開始
-trainer = Trainer(
-    model=model,
-    args=training_args,
-    train_dataset=train_inputs,
-    eval_dataset=val_inputs,
-)
+    # 転移学習の実行（GPUを利用すれば1エポック10分程度）
+    model = T5FineTuner(args)
+    trainer = pl.Trainer(**train_params)
+    trainer.fit(model)
 
-trainer.train()
-"""
+    # 最終エポックのモデルを保存
+    model.tokenizer.save_pretrained(MODEL_DIR)
+    model.model.save_pretrained(MODEL_DIR)
+
+    del model
