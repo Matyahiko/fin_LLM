@@ -22,6 +22,7 @@ RUN pip install -r requirements.txt
 RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash && apt-get install git-lfs && git lfs install
 RUN apt-get install mecab libmecab-dev mecab-ipadic-utf8
 RUN pip install --upgrade accelerate
+RUN apt install tmux -y
 #RUN git lfs clone https://github.com/1never/open2ch-dialogue-corpus && mv open2ch-dialogue-corpus datasets/open2ch-dialogue-corpus
 
 

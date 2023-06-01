@@ -35,13 +35,13 @@ def set_seed(seed):
 
     set_seed(0)
 
-# GPU利用有無
+
 USE_GPU = torch.cuda.is_available()
 PRETRAINED_MODEL_NAME = "sonoisa/t5-base-japanese"
-
+MODEL_DIR = "../../trained_models/T5/"
 # 各種ハイパーパラメータ
 args_dict = dict(
-    data_dir="../../datasets/2ch_dataset/corpus/newsplus_input.tsv",  # データセットのディレクトリ
+    data_dir="../../datasets/2ch_dataset/corpus/input.tsv",  # データセットのディレクトリ
     model_name_or_path=PRETRAINED_MODEL_NAME,
     tokenizer_name_or_path=PRETRAINED_MODEL_NAME,
 

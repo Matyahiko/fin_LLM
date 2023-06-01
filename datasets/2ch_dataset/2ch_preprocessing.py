@@ -30,62 +30,67 @@ def load_data():
     """
     return 0
 
-def replace():
+def replace(filenames):
 
     #コマンドからreplace_br.pyを実行
-    os.system("python replace_br.py --input_file corpus/newsplus.tsv --output_file corpus/newsplus_replaced.tsv")
+    for file in filenames:
+        os.system(f"python replace_br.py --input_file corpus/{file}.tsv --output_file corpus/{file}_replaced.tsv")
+    
     return 0
 
-def shape():
-    data = []
+def shape(filenames):
+    for file in filenames:
+        data = []
+        with open(f"corpus/{file}_replaced.tsv", 'r') as f:
+            reader = csv.reader(f, delimiter='\t')
 
-    with open("corpus/newsplus_replaced.tsv", 'r') as file:
-        reader = csv.reader(file, delimiter='\t')
+            for row in reader:
+                # 各行から最初の2つの要素を取得し、リストに追加します。
+                data.append(row[:2])
 
-        for row in reader:
-            # 各行から最初の2つの要素を取得し、リストに追加します。
-            data.append(row[:2])
-
-    # リストをデータフレームに変換します。
-    df = pd.DataFrame(data)
-    df.columns = ["input", "target"]
-    #print(data.head(10))
-    #tsvファイルに書き出し
-    df.to_csv("corpus/newsplus_shaped.tsv", sep="\t", index=False)
+            # リストをデータフレームに変換します。
+            df = pd.DataFrame(data)
+            df.columns = ["input", "target"]
+            #print(df.head(10))
+            #tsvファイルに書き出し
+            df.to_csv(f"./corpus/{file}_shaped.tsv", sep="\t", index=False)
     
-def labelings():
-    data =[]
-    df = pd.read_csv("corpus/newsplus_shaped.tsv", sep="\t")
-    print(df.head(10))
-    #一行ずつ読み込んでラベル付け
-    for i in range(len(df)):
-        print(df.at[i,"input"])
-        print(df.at[i,"target"])
+def labelings(filenames):
+    for file in filenames:
+        data =[]
+        df = pd.read_csv(f"corpus/{file}_shaped.tsv", sep="\t")
+        #print(df.head(10))
+        #一行ずつ読み込んでラベル付け
+        for i in range(len(df)):
+            print(df.at[i,"input"])
+            print(df.at[i,"target"])
 
-        row_data = {}
-        row_data["input_text"] = df.at[i,"input"]
-        row_data["target_text"] = df.at[i,"target"]
-        data.append(row_data)
+            row_data = {}
+            row_data["input_text"] = df.at[i,"input"]
+            row_data["target_text"] = df.at[i,"target"]
+            data.append(row_data)
 
-       
-    #list to json
-    with open("corpus/newsplus_input.json", 'w') as f:
-        #ensure_ascii=Falss これ精度変わるかも
-        json.dump(data, f, indent=4, ensure_ascii=False)
-    
-    #list to tsv
-    df.to_csv("corpus/newsplus_input.tsv", sep="\t", index=False)
-    
+        
+        #list to json
+        with open(f"corpus/{file}_input.json", 'w') as f:
+            #ensure_ascii=Falss これ精度変わるかも
+            json.dump(data, f, indent=4, ensure_ascii=False)
+        
+        #list to tsv
+        df.to_csv(f"corpus/{file}_input.tsv", sep="\t", index=False)
+        
 
     return 0
 if __name__ == '__main__':
-    load_data()
+    filenames = ["newsplus", "news4vip", "livejupiter"]
+
+    #load_data()
     print("load_data() is done")
-    replace()
+    replace(filenames)
     print("replace() is done")
-    shape()
+    shape(filenames)
     print("shaping() is done")
-    labelings()
+    labelings(filenames)
     print("labelings() is done")
 
 

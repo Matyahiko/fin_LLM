@@ -14,3 +14,4 @@ datasets
 mecab
 scikit-learn
 pytorch-lightning<2.0.0
+tensorboard
